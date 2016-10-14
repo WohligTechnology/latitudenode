@@ -30,32 +30,6 @@ var models = {
   saveData: function(data, callback) {
     var enquiry = this(data);
     enquiry.timestamp = new Date();
-    if (data._id) {
-      this.findOneAndUpdate({
-        _id: data._id
-      }, data).exec(function(err, updated) {
-        if (err) {
-          console.log(err);
-          callback(err, null);
-        } else if (updated) {
-          callback(null, updated);
-        } else {
-          callback(null, {});
-        }
-      });
-    } else {
-      this.findOne({
-        "email": data.email
-      }).exec(function(err, found) {
-        if (err) {
-          console.log(err);
-          callback(err, null);
-        } else if (found && Object.keys(found).length > 0) {
-          callback(null, {
-            value: false,
-            data: "Email already exists"
-          });
-        } else {
           enquiry.save(function(err, created) {
             if (err) {
               callback(err, null);
@@ -65,9 +39,9 @@ var models = {
               callback(null, {});
             }
           });
-        }
-      });
-    }
+
+
+
   },
   deleteData: function(data, callback) {
     this.findOneAndRemove({
