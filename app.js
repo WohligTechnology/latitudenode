@@ -23,7 +23,7 @@
 process.chdir(__dirname);
 var mongoose;
 mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost:27017/1899lat', function(err) {
+mongoose.connect('mongodb://localhost:27017/latitude', function(err) {
     if (err) {
         console.log(err);
     }
