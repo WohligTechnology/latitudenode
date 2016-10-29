@@ -1,8 +1,8 @@
 // var facebook = require('./facebook.js');
 module.exports = {
-	save: function(req, res) {
+	saveLogin: function(req, res) {
 		if (req.body) {
-			Register.saveData(req.body, res.callback);
+			Register.saveLoginData(req.body, res.callback);
 		} else {
 			res.json({
 				value: false,
@@ -10,6 +10,8 @@ module.exports = {
 			});
 		}
 	},
+
+
 	login: function(req, res) {
 			var callback = function(err, data) {
 					if (err || _.isEmpty(data)) {

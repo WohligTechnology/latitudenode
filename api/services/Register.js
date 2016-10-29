@@ -86,26 +86,12 @@ var models = {
           }
       });
   },
-  saveData: function(data, callback) {
+  saveLoginData: function(data, callback) {
     if (data.password && data.password != "") {
         data.password = md5(data.password);
     }
     var register = this(data);
-    if (data._id) {
-      this.findOneAndUpdate({
-        _id: data._id
-      }, data).exec(function(err, updated) {
-        if (err) {
-          console.log(err);
-          callback(err, null);
-        } else if (updated) {
-          callback(null, updated);
-        } else {
-          callback(null, {});
-        }
-      });
-    } else {
-      register.save(function(err, created) {
+    register.save(function(err, created) {
         if (err) {
           callback(err, null);
         } else if (created) {
@@ -114,9 +100,7 @@ var models = {
           callback(null, {});
         }
       });
-    }
-  },
-
+   }
 };
 
 module.exports = _.assign(module.exports, models);

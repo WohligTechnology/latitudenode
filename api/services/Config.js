@@ -8,14 +8,102 @@
 var mongoose = require('mongoose');
 var Grid = require('gridfs-stream');
 var fs = require("fs");
+var fse = require('fs-extra')
 var lwip = require("lwip");
+var process = require('child_process');
+var lodash = require('lodash');
 var MaxImageSize = 1200;
 
 var gfs = Grid(mongoose.connections[0].db, mongoose);
 gfs.mongo = mongoose.mongo;
 
-module.exports = {
-    GlobalCallback: function (err, data, res) {
+var Schema = mongoose.Schema;
+var schema = new Schema({
+    name: String
+});
+
+module.exports = mongoose.model('Config', schema);
+
+var models = {
+    maxRow: 100,
+    getForeignKeys: function(schema) {
+        var arr = [];
+        _.each(schema.tree, function(n, name) {
+            if (n.key) {
+                arr.push({
+                    name: name,
+                    ref: n.ref,
+                    key: n.key
+                });
+            }
+        });
+        return arr;
+    },
+    checkRestrictedDelete: function(Model, schema, data, callback) {
+
+        var values = schema.tree;
+        var arr = [];
+        var ret = true;
+        _.each(values, function(n, key) {
+            if (n.restrictedDelete) {
+                arr.push(key);
+            }
+        });
+
+        Model.findOne({
+            "_id": data._id
+        }, function(err, data2) {
+            if (err) {
+                callback(err, null);
+            } else if (data2) {
+                _.each(arr, function(n) {
+                    if (data2[n].length !== 0) {
+                        ret = false;
+                    }
+                });
+                callback(null, ret);
+            } else {
+                callback("No Data Found", null);
+            }
+        });
+    },
+    manageArrayObject: function(Model, id, data, key, action, callback) {
+        Model.findOne({
+            "_id": id
+        }, function(err, data2) {
+            if (err) {
+                callback(err, null);
+            } else if (data2) {
+                switch (action) {
+                    case "create":
+                        {
+                            data2[key].push(data);
+                            data2[key] = _.unique(data2[key]);
+                            console.log(data2[key]);
+                            data2.update(data2, {
+                                w: 1
+                            }, callback);
+                        }
+                        break;
+                    case "delete":
+                        {
+                            _.remove(data2[key], function(n) {
+                                return (n + "") == (data + "");
+                            });
+                            data2.update(data2, {
+                                w: 1
+                            }, callback);
+                        }
+                        break;
+                }
+            } else {
+                callback("No Data Found for the ID", null);
+            }
+        });
+
+
+    },
+    GlobalCallback: function(err, data, res) {
         if (err) {
             res.json({
                 error: err,
@@ -28,14 +116,29 @@ module.exports = {
             });
         }
     },
-    uploadFile: function (filename, callback) {
-
+    uploadFile: function(filename, callback) {
         var id = mongoose.Types.ObjectId();
         var extension = filename.split(".").pop();
         extension = extension.toLowerCase();
         if (extension == "jpeg") {
             extension = "jpg";
         }
+
+                if (extension == "pdf") {
+                  extension = "pdf";
+                  fse.copy('Config.js', 'mynewfile.js', function (err) {
+                  // fse.copy('../../uploads/pdfurl-guide.pdf', '../../uploads/mynewfile.pdf', function (err) {
+                    if (err) return console.error(err)
+                    console.log("success!")
+});
+              // var file = "../uploads/file.txt";
+              // fse.createFile(file, function(err){
+              //   console.log(err);
+              //   console.log("done");
+              // });
+                }
+
+
         var newFilename = id + "." + extension;
 
         var writestream = gfs.createWriteStream({
@@ -48,7 +151,7 @@ module.exports = {
                 filename: newFilename,
                 metadata: metaValue
             });
-            writestream2.on('finish', function () {
+            writestream2.on('finish', function() {
                 callback(null, {
                     name: newFilename
                 });
@@ -58,42 +161,57 @@ module.exports = {
         }
 
         if (extension == "png" || extension == "jpg" || extension == "gif") {
-            lwip.open(filename, extension, function (err, image) {
-                var upImage = {
-                    width: image.width(),
-                    height: image.height(),
-                    ratio: image.width() / image.height()
-                };
-
-                if (upImage.width > upImage.height) {
-                    if (upImage.width > MaxImageSize) {
-                        image.resize(MaxImageSize, MaxImageSize / (upImage.width / upImage.height), function (err, image2) {
-                            upImage = {
-                                width: image2.width(),
-                                height: image2.height(),
-                                ratio: image2.width() / image2.height()
-                            };
-                            image2.writeFile(filename, function (err) {
-                                writer2(upImage);
-                            });
-                        });
-                    } else {
-                        writer2(upImage);
-                    }
+            lwip.open(filename, extension, function(err, image) {
+                if (err) {
+                    console.log(err);
+                    callback(err, null);
                 } else {
-                    if (upImage.height > MaxImageSize) {
-                        image.resize((upImage.width / upImage.height) * MaxImageSize, MaxImageSize, function (err, image2) {
-                            upImage = {
-                                width: image2.width(),
-                                height: image2.height(),
-                                ratio: image2.width() / image2.height()
-                            };
-                            image2.writeFile(filename, function (err) {
-                                writer2(upImage);
+                    var upImage = {
+                        width: image.width(),
+                        height: image.height(),
+                        ratio: image.width() / image.height()
+                    };
+
+                    if (upImage.width > upImage.height) {
+                        if (upImage.width > MaxImageSize) {
+                            image.resize(MaxImageSize, MaxImageSize / (upImage.width / upImage.height), function(err, image2) {
+                                if (err) {
+                                    console.log(err);
+                                    callback(err, null);
+                                } else {
+                                    upImage = {
+                                        width: image2.width(),
+                                        height: image2.height(),
+                                        ratio: image2.width() / image2.height()
+                                    };
+                                    image2.writeFile(filename, function(err) {
+                                        writer2(upImage);
+                                    });
+                                }
                             });
-                        });
+                        } else {
+                            writer2(upImage);
+                        }
                     } else {
-                        writer2(upImage);
+                        if (upImage.height > MaxImageSize) {
+                            image.resize((upImage.width / upImage.height) * MaxImageSize, MaxImageSize, function(err, image2) {
+                                if (err) {
+                                    console.log(err);
+                                    callback(err, null);
+                                } else {
+                                    upImage = {
+                                        width: image2.width(),
+                                        height: image2.height(),
+                                        ratio: image2.width() / image2.height()
+                                    };
+                                    image2.writeFile(filename, function(err) {
+                                        writer2(upImage);
+                                    });
+                                }
+                            });
+                        } else {
+                            writer2(upImage);
+                        }
                     }
                 }
             });
@@ -101,18 +219,18 @@ module.exports = {
             imageStream.pipe(writestream);
         }
 
-        writestream.on('finish', function () {
+        writestream.on('finish', function() {
             callback(null, {
                 name: newFilename
             });
             fs.unlink(filename);
         });
     },
-    readUploaded: function (filename, width, height, style, res) {
+    readUploaded: function(filename, width, height, style, res) {
         var readstream = gfs.createReadStream({
             filename: filename
         });
-        readstream.on('error', function (err) {
+        readstream.on('error', function(err) {
             res.json({
                 value: false,
                 error: err
@@ -124,7 +242,7 @@ module.exports = {
                 filename: gridFSFilename,
                 metadata: metaValue
             });
-            writestream2.on('finish', function () {
+            writestream2.on('finish', function() {
                 fs.unlink(filename);
             });
             fs.createReadStream(filename).pipe(res);
@@ -135,7 +253,7 @@ module.exports = {
             var readstream2 = gfs.createReadStream({
                 filename: filename2
             });
-            readstream2.on('error', function (err) {
+            readstream2.on('error', function(err) {
                 res.json({
                     value: false,
                     error: err
@@ -166,7 +284,7 @@ module.exports = {
             var newNameExtire = newName + "." + extension;
             gfs.exist({
                 filename: newNameExtire
-            }, function (err, found) {
+            }, function(err, found) {
                 if (err) {
                     res.json({
                         value: false,
@@ -178,8 +296,8 @@ module.exports = {
                 } else {
                     var imageStream = fs.createWriteStream('./.tmp/uploads/' + filename);
                     readstream.pipe(imageStream);
-                    imageStream.on("finish", function () {
-                        lwip.open('./.tmp/uploads/' + filename, function (err, image) {
+                    imageStream.on("finish", function() {
+                        lwip.open('./.tmp/uploads/' + filename, function(err, image) {
                             ImageWidth = image.width();
                             ImageHeight = image.height();
                             var newWidth = 0;
@@ -216,8 +334,8 @@ module.exports = {
                                 newWidth = height * (ImageWidth / ImageHeight);
                                 newHeight = height;
                             }
-                            image.resize(parseInt(newWidth), parseInt(newHeight), function (err, image2) {
-                                image2.writeFile('./.tmp/uploads/' + filename, function (err) {
+                            image.resize(parseInt(newWidth), parseInt(newHeight), function(err, image2) {
+                                image2.writeFile('./.tmp/uploads/' + filename, function(err) {
                                     writer2('./.tmp/uploads/' + filename, newNameExtire, {
                                         width: newWidth,
                                         height: newHeight
@@ -233,5 +351,7 @@ module.exports = {
             readstream.pipe(res);
         }
         //error handling, e.g. file does not exist
-    }
+    },
+
 };
+module.exports = _.assign(module.exports, models);
