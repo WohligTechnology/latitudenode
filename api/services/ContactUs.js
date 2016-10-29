@@ -19,6 +19,15 @@ var schema = new Schema({
   time: {
     type: Date,
     default: Date.now
+  },
+  status:{
+    type:String,
+    enum:["Pending","Spoke With Client","Commented"]
+  },
+  note:String,
+  time2:{
+    type: Date,
+    default: Date.now
   }
 });
 
