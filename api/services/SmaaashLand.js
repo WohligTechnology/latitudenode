@@ -1,34 +1,39 @@
 var schema = new Schema({
-  eventtype:{
-    type:String,
-    enum:["Corporate Events","Annual General Meeting","Product/ Service Launch","Employee Training Session", "Panel Discussion", "Education Fair","Fashion Shows","Comic & Gaming Expos"]
-  },  name: {
+
+  eventtype: {
+    type: String,
+    enum: ["Corporate Events", "Annual General Meeting", "Product/ Service Launch", "Employee Training Session", "Panel Discussion", "Education Fair", "Fashion Shows", "Comic & Gaming Expos"]
+  },
+  name: {
     type: String,
     default: ""
-  },phone: {
+  },
+  phone: {
     type: String,
     default: ""
-  },  email: {
+  },
+  email: {
     type: String,
     default: ""
-  }, eventdate: {
-      type: Date,
-      default:""
-    },
+  },
+  eventdate: {
+    type: Date,
+    default: ""
+  },
   time: {
-      type: Date,
-      default: Date.now
-    },
-    status:{
-      type:String,
-      enum:["Pending","Spoke With Client","Commented"]
-    },
-    note:String,
-    time2:{
-      type: Date,
-      default: Date.now
-    }
-})
+    type: Date,
+    default: Date.now
+  },
+  status: {
+    type: String,
+    enum: ["Pending", "Spoke With Client", "Commented"]
+  },
+  note: String,
+  time2: {
+    type: Date,
+    default: Date.now
+  }
+});
 
 
 
