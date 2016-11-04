@@ -2,7 +2,7 @@ var schema = new Schema({
 
     eventtype: {
         type: String,
-        enum: ["Corporate Events", "Annual General Meeting", "Product/ Service Launch", "Employee Training Session", "Panel Discussion", "Education Fair", "Fashion Shows", "Comic & Gaming Expos"]
+        enum: ["Birthday Parties", "Anniversary Celebrations", "Engagement Celebrations", "Navjoths", "Pre-Wedding Parties", "Baby Showers", "Bridal Showers", "Bachelor / Bachelorette Party", "Sangeet Ceremonies", "Mehendi Ceremonies", "Cocktail Parties", "Wedding Ceremonies", "Alumni Night", "Reunions", "Fresher’s Parties", "Graduation Parties", " Navratri Parties / Dandiya Nights", "Christmas Bashes"]
     },
     name: {
         type: String,
