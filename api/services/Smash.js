@@ -1,6 +1,6 @@
 var schema = new Schema({
 
-  eventtype: {
+  eventType: {
     type: String,
     enum: ["Corporate Events", "Annual General Meeting", "Product/ Service Launch", "Employee Training Session", "Panel Discussion", "Education Fair", "Fashion Shows", "Comic & Gaming Expos"]
   },
