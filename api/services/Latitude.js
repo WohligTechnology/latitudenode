@@ -1,9 +1,8 @@
 var schema = new Schema({
 
     eventType: {
-        type: String,
-        enum: ["Birthday Parties", "Anniversary Celebrations", "Engagement Celebrations", "Navjoths", "Pre-Wedding Parties", "Baby Showers", "Bridal Showers", "Bachelor / Bachelorette Party", "Sangeet Ceremonies", "Mehendi Ceremonies", "Cocktail Parties", "Wedding Ceremonies", "Alumni Night", "Reunions", "Fresher’s Parties", "Graduation Parties", " Navratri Parties / Dandiya Nights", "Christmas Bashes"]
-    },
+        type: [String]
+       },
     name: {
         type: String,
         default: ""
@@ -16,9 +15,9 @@ var schema = new Schema({
         type: String,
         default: ""
     },
-    eventdate: {
-        type: Date,
-        default: ""
+    eventDate: {
+        type: Date
+      
     },
     time: {
         type: Date,
@@ -39,12 +38,12 @@ var schema = new Schema({
 schema.plugin(deepPopulate, {});
 schema.plugin(uniqueValidator);
 schema.plugin(timestamps);
-module.exports = mongoose.model('1899', schema);
+module.exports = mongoose.model('Latitude', schema);
 
 var exports = _.cloneDeep(require("sails-wohlig-service")(schema));
 var model = {
   getAll: function (data, callback) {
-    Enquiry.find({}).sort( { createdAt: -1 } ).exec(function (err, results) {
+    Latitude.find({}).sort( { createdAt: -1 } ).exec(function (err, results) {
         if (err) {
           console.log(err);
           callback(err, null);

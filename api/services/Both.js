@@ -13,9 +13,8 @@ var schema = new Schema({
         type: String,
         default: ""
     },
-    eventdate: {
-        type: Date,
-        default: ""
+    eventDate: {
+        type: Date
     },
     time: {
         type: Date,

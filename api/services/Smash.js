@@ -16,9 +16,8 @@ var schema = new Schema({
     type: String,
     default: ""
   },
-  eventdate: {
-    type: Date,
-    default: ""
+  eventDate: {
+    type: Date
   },
   time: {
     type: Date,
@@ -45,18 +44,18 @@ schema.plugin(timestamps);
 module.exports = mongoose.model('Smash', schema);
 
 var exports = _.cloneDeep(require("sails-wohlig-service")(schema));
-var model = {
-  getAll: function (data, callback) {
-    Smash.find({}).sort( { createdAt: -1 } ).exec(function (err, results) {
-        if (err) {
-          console.log(err);
-          callback(err, null);
-        } else if (results) {
-          callback(null, results);
-        } else {
-          callback(null, "Invalid data");
-        }
-      });
-  },
-};
+  var model = {
+    getAll: function (data, callback) {
+      Smash.find({}).sort( { createdAt: -1 } ).exec(function (err, results) {
+          if (err) {
+            console.log(err);
+            callback(err, null);
+          } else if (results) {
+            callback(null, results);
+          } else {
+            callback(null, "Invalid data");
+          }
+        });
+    },
+  };
 module.exports = _.assign(module.exports, exports, model);

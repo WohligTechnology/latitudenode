@@ -22,6 +22,7 @@
     "include-all": "~0.1.6",
     "lwip": "0.0.9",
     "md5": "^2.2.1",
+    "moment": "^2.15.2",
     "mongoose": "^4.5.10",
     "mongoose-deep-populate": "^3.0.0",
     "mongoose-middleware": "^0.2.19",

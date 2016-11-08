@@ -10,6 +10,16 @@ var controller = {
       });
     }
   },
+   save: function(req, res) {
+      if(req.body) {
+        req.body.eventDate = moment(req.body.eventDate).toDate();
+req.model.saveData(req.body, res.callback);
+      }
+      else if (req.allParams()) {
+req.model.saveData(req.allParams(), res.callback);
+      }
+        
+    },  
 };
 
 module.exports = _.assign(module.exports, controller);
