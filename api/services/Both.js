@@ -13,8 +13,14 @@ var schema = new Schema({
         type: String,
         default: ""
     },
-    eventDate: {
-        type: Date
+  
+    people: {
+        type: String,
+        enum: ["20 to 50", "50 to 100", "100 to 300", "300 to 500", "500 to 700"]
+    },
+    comment: {
+        type: String,
+        default: ""
     },
     time: {
         type: Date,
@@ -39,17 +45,19 @@ module.exports = mongoose.model('Both', schema);
 
 var exports = _.cloneDeep(require("sails-wohlig-service")(schema));
 var model = {
-  getAll: function (data, callback) {
-    Both.find({}).sort( { createdAt: -1 } ).exec(function (err, results) {
-        if (err) {
-          console.log(err);
-          callback(err, null);
-        } else if (results) {
-          callback(null, results);
-        } else {
-          callback(null, "Invalid data");
-        }
-      });
-  },
+    getAll: function (data, callback) {
+        Both.find({}).sort({
+            createdAt: -1
+        }).exec(function (err, results) {
+            if (err) {
+                console.log(err);
+                callback(err, null);
+            } else if (results) {
+                callback(null, results);
+            } else {
+                callback(null, "Invalid data");
+            }
+        });
+    },
 };
 module.exports = _.assign(module.exports, exports, model);
