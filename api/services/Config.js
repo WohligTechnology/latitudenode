@@ -13,7 +13,8 @@ var lwip = require("lwip");
 var process = require('child_process');
 var lodash = require('lodash');
 var MaxImageSize = 1200;
-
+var request = require("request");
+var requrl = "http://localhost:1337/";
 var gfs = Grid(mongoose.connections[0].db, mongoose);
 gfs.mongo = mongoose.mongo;
 
@@ -39,6 +40,75 @@ var models = {
         });
         return arr;
     },
+
+ email: function (data, callback) {
+        console.log("EMAIL DATA",data);
+        Password.find().exec(function (err, userdata) {
+            if (err) {
+                //     console.log(err);
+                callback(err, null);
+            } else if (userdata && userdata.length > 0) {
+                if (data.filename && data.filename != "") {
+                    request.post({
+                        url: requrl + "config/emailReader/",
+                        json: data
+                    }, function (err, http, body) {
+                        //console.log(err,http,body);
+                            
+                        console.log("BODY-->>",body);
+                        if (err) {
+                            console.log(err);
+                            callback(err, null);
+                        } else {
+                            //   console.log('email else');
+                            if (body && body.value != false) {
+                                //console.log("body", body);
+                                var sendgrid = require("sendgrid")(userdata[0].name);
+                                sendgrid.send({
+                                    to: data.email,
+                                    cc: data.cc,
+                                    from: "info@wohlig.com",
+                                    subject: data.subject,
+                                    html: body
+                                }, function (err, json) {
+                                    console.log("JSON",json);
+                                    
+                                    if (err) {
+                                        console.log('in email error',err);
+                                        callback(err, null);
+                                    } else {
+                                        //  console.log('not in error');
+                                        //  console.log({
+                                        //      to: data.email,
+                                        //      from: "info@wohlig.com",
+                                        //      subject: data.subject,
+                                        //      html: body
+                                        //  });
+                                        //  console.log(json);
+                                        callback(null, json);
+                                    }
+                                });
+                            } else {
+                                callback({
+                                    message: "Some error in html"
+                                }, null);
+                            }
+                        }
+                    });
+                } else {
+                    callback({
+                        message: "Please provide params"
+                    }, null);
+                }
+            } else {
+                callback({
+                    message: "No api keys found"
+                }, null);
+            }
+        });
+    },
+
+
     checkRestrictedDelete: function(Model, schema, data, callback) {
 
         var values = schema.tree;

@@ -10,6 +10,17 @@ var controller = {
       });
     }
   },
+
+   saveEnquiry: function(req, res) {
+    if (req.body) {
+      Enquiry.saveEnquiry(req.body, res.callback);
+    } else {
+      res.json({
+        value: false,
+        data: "Invalid Request"
+      });
+    }
+  },
 };
 
 module.exports = _.assign(module.exports, controller);

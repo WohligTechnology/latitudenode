@@ -50,5 +50,43 @@ var model = {
         }
       });
   },
+
+    saveEnquiry: function (data, callback) {
+    var enquirydata = data;
+    console.log(data.myCart);
+   
+
+    enquirydata = this(enquirydata);
+    enquirydata.save(function (err, respo) {
+      if (err) {
+        callback(err, null);
+      } else {
+        console.log("respo", respo);
+
+    
+
+            var emailData = {};
+            emailData.email = "pratik.gawand@wohlig.com";
+            emailData.cc = "pratik.gawand@wohlig.com";
+            emailData.content = data;
+        
+            emailData.filename = "emailletter.ejs";
+             emailData.subject = "Latitude Enquiry";
+            Config.email(emailData, function (err, emailRespo) {
+              if (err) {
+                console.log("EROR in EMAIL CONFIG", err);
+                callback(err, null);
+              } else {
+                console.log(emailRespo);
+
+                callback(null, respo);
+              }
+             
+            });
+            
+          }
+        });
+      
+  },
 };
 module.exports = _.assign(module.exports, exports, model);
