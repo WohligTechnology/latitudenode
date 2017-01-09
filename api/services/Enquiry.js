@@ -67,7 +67,11 @@ var model = {
 
             var emailData = {};
             emailData.email = "pratik.gawand@wohlig.com";
-            emailData.cc = "pratik.gawand@wohlig.com";
+            emailData.cc =  ['pratik.gawand@wohlig.com', '"PG" <pratikg17@gmail.com>' ,'"" <pratik.patel@wohlig.com>'];
+            // emailData.cc =  ['avanti.atre@smaaash.in', '"" <mukta.fernandes@smaaash.in>' ,'"" <aadil@ting.in>','"" <rajiv@tingmail.in>','"" <vamsi@tingmail.in>','"" <arjun.garewal@smaaash.in>','"" <nilesh.jadhav@smaaash.in>','"" <bhupender.singh@smaaash.in>','"" <vipin@tingmail.in>'];
+
+            
+
             emailData.content = data;
         
             emailData.filename = "emailletter.ejs";
