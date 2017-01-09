@@ -14,7 +14,11 @@ var process = require('child_process');
 var lodash = require('lodash');
 var MaxImageSize = 1200;
 var request = require("request");
-var requrl = "http://localhost:1337/";
+// var requrl = "http://localhost:1337/";
+var requrl = "http://103.53.41.98:80/";
+
+
+
 var gfs = Grid(mongoose.connections[0].db, mongoose);
 gfs.mongo = mongoose.mongo;
 
