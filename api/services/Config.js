@@ -15,7 +15,7 @@ var lodash = require('lodash');
 var MaxImageSize = 1200;
 var request = require("request");
 // var requrl = "http://localhost:1337/";
-var requrl = "http://103.53.41.98:80/";
+var requrl = "http://104.154.110.195:92/";
 
 
 
